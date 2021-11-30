@@ -1,6 +1,7 @@
 from model.project import Project
 
 def test_delete_project(app):
+    app.session.login("administrator", "root")
     NewName_created = False
     index = 0
     if len(app.projects.get_project_list()) < 1:
@@ -12,12 +13,12 @@ def test_delete_project(app):
                 break
         if NewName_created == False:
             app.projects.create_new_project(Project(name="NewName", description="NewDescription"))
-    old_projects = app.projects.get_project_list()
+    old_projects = app.soap.get_project_list("administrator", "root")
     for o in old_projects:
-        if o.name == "NewName":
+        if o == "NewName":
             break
         index += 1
     app.projects.delete_by_project_name("NewName")
-    new_projects = app.projects.get_project_list()
+    new_projects = app.soap.get_project_list("administrator", "root")
     del old_projects[index]
-    assert sorted(str(old_projects)) == sorted(str(new_projects))
+    assert sorted(old_projects) == sorted(new_projects)
