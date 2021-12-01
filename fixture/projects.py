@@ -17,12 +17,12 @@ class ProjectHelper:
             wd.find_element_by_name(field_name).clear()
             wd.find_element_by_name(field_name).send_keys(text)
 
-    def create_new_project(self, project):
+    def create_new_project(self, name, description):
         wd = self.app.wd
         self.open_manage_projects_page()
         wd.find_element_by_xpath("//form[@method='post']//input[@value='Create New Project']").click()
-        self.change_field_value("name", project.name)
-        self.change_field_value("description", project.description)
+        self.change_field_value("name", name)
+        self.change_field_value("description", description)
         wd.find_element_by_xpath("//form[@method='post']//input[@value='Add Project']").click()
         self.project_cache = None
 
@@ -49,3 +49,29 @@ class ProjectHelper:
         wd.find_element_by_xpath("//form[@method='post']//input[@value='Delete Project']").click()
         wd.find_element_by_xpath("//form[@method='post']//input[@value='Delete Project']").click()
         self.project_cache = None
+
+    def check_contact_created(self, name, description):
+        NewName_created = False
+        if len(self.get_project_list()) < 1:
+            self.create_new_project(name, description)
+        elif len(self.get_project_list()) > 0:
+            for i in self.get_project_list():
+                if i.name == f"{name}":
+                    NewName_created = True
+                    break
+            if NewName_created == False:
+                self.create_new_project(name, description)
+
+    def take_index_from_projects_list(self, projects_list, name):
+        index = 0
+        for o in projects_list:
+            if o == f"{name}":
+                break
+            index += 1
+        return index
+
+    def check_that_project_deleted(self, name):
+        if len(self.get_project_list()) > 0:
+            for i in self.get_project_list():
+                if i.name == f"{name}":
+                    self.delete_by_project_name(f"{name}")
